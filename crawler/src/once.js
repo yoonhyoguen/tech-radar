@@ -1,11 +1,14 @@
 import { pool } from './db.js';
-import { fetchRss } from './fetchers.js';
+import { fetchRss, fetchHtml } from './fetchers.js';
 import { getEnabledSources, upsertArticle } from './repo.js';
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 const sources = await getEnabledSources();
 
 for (const src of sources) {
-	const items = await fetchRss(src.url);
+	const items = src.type === 'RSS'
+		? await fetchRss(src.url)
+		: await fetchHtml(src.url, src.list_selector);
 	let ins = 0;
 	let upd = 0;
 	for (const it of items) {
@@ -14,6 +17,7 @@ for (const src of sources) {
 		else if (r.changed) upd++;
 	}
 	console.log(`${src.name}: 수집 ${items.length} / 신규 ${ins} / 갱신 ${upd}`);
+	await sleep(1000);
 }
 
 await pool.end();
