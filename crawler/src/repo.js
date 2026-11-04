@@ -30,3 +30,35 @@ export async function upsertArticle(sourceId, it) {
 	);
 	return rows[0];
 }
+
+export async function getDueSources() {
+	const { rows } = await pool.query(
+		`SELECT * FROM source
+     WHERE enabled
+       AND (last_crawled_at IS NULL
+         OR last_crawled_at < now() - make_interval(mins => interval_min))`,
+	);
+	return rows;
+}
+
+export async function startRun(sourceId) {
+	const { rows } = await pool.query(
+		`INSERT INTO crawl_run (source_id, status) VALUES ($1, 'RUNNING') RETURNING id`,
+		[sourceId],
+	);
+	return rows[0].id;
+}
+
+export async function finishRun(id, status, fetched, inserted, updated, error = null) {
+	await pool.query(
+		`UPDATE crawl_run
+     SET finished_at = now(), status = $2, fetched_count = $3,
+         inserted_count = $4, updated_count = $5, error_message = $6
+     WHERE id = $1`,
+		[id, status, fetched, inserted, updated, error],
+	);
+}
+
+export async function touchSource(id) {
+	await pool.query('UPDATE source SET last_crawled_at = now() WHERE id = $1', [id]);
+}
