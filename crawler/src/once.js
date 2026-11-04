@@ -1,7 +1,19 @@
+import { pool } from './db.js';
 import { fetchRss } from './fetchers.js';
+import { getEnabledSources, upsertArticle } from './repo.js';
 
-const items = await fetchRss('https://www.digital.go.jp/rss/news.xml');
+const sources = await getEnabledSources();
 
-console.log('전체', items.length);
-console.log('고유 url', new Set(items.map(it => it.url)).size);
-console.log(items.slice(0, 3));
+for (const src of sources) {
+	const items = await fetchRss(src.url);
+	let ins = 0;
+	let upd = 0;
+	for (const it of items) {
+		const r = await upsertArticle(src.id, it);
+		if (r.inserted) ins++;
+		else if (r.changed) upd++;
+	}
+	console.log(`${src.name}: 수집 ${items.length} / 신규 ${ins} / 갱신 ${upd}`);
+}
+
+await pool.end();
