@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('대시보드', true)}"></head>
+<body id="page-top">
+<div id="wrapper">
+    <ul th:replace="~{fragments/layout :: sidebar('dashboard')}"></ul>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <nav th:replace="~{fragments/layout :: topbar('대시보드')}"></nav>
+
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">총 기사</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"
+                                     th:text="${#numbers.formatInteger(summary.totalArticles, 1, 'COMMA')}">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">오늘 신규</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"
+                                     th:text="${#numbers.formatInteger(summary.todayNew, 1, 'COMMA')}">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">활성 소스</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${summary.activeSources}">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card shadow h-100 py-2"
+                             th:classappend="${summary.collectorStale} ? 'border-left-danger' : 'border-left-warning'">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">마지막 수집</div>
+                                <div class="h5 mb-1 font-weight-bold text-gray-800"
+                                     th:text="${@fmt.ago(summary.lastCrawledAt)}">-</div>
+                                <span th:if="${summary.collectorStale}" class="badge badge-danger">수집기 정지 의심</span>
+                                <span th:unless="${summary.collectorStale}" class="badge badge-success">수집기 정상</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">시간대별 신규 수집 (최근 24시간)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div style="height: 320px;"><canvas id="hourlyChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">키워드 TOP (최근 7일)</h6>
+                                <a th:href="@{/keywords}" class="small">키워드 관리</a>
+                            </div>
+                            <div class="card-body">
+                                <div style="height: 320px;"><canvas id="keywordChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">최근 실행 이력</h6>
+                        <a th:href="@{/runs}" class="small">전체 보기</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                <tr><th>시작</th><th>소스</th><th>상태</th><th>결과</th></tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="run : ${recentRuns}">
+                                    <td th:text="${@fmt.dt(run.startedAt)}"></td>
+                                    <td th:text="${run.source.name}"></td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${run.status == 'SUCCESS'} ? 'badge-success' : (${run.status == 'FAILED'} ? 'badge-danger' : 'badge-warning')"
+                                              th:text="${run.status}"></span>
+                                    </td>
+                                    <td th:if="${run.status == 'FAILED'}" class="text-danger small text-break-all"
+                                        th:text="${run.errorMessage}"></td>
+                                    <td th:unless="${run.status == 'FAILED'}"
+                                        th:text="|신규 ${run.insertedCount} · 갱신 ${run.updatedCount}|"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentRuns)}">
+                                    <td colspan="4" class="text-center text-gray-500">실행 기록이 없습니다.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="small text-gray-500">이 화면은 60초마다 자동으로 새로고침됩니다.</p>
+            </div>
+        </div>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script th:src="@{/vendor/chart.js/Chart.min.js}"></script>
+<script th:inline="javascript">
+    const hourlyLabels = /*[[${hourlyLabels}]]*/ [];
+    const hourlyCounts = /*[[${hourlyCounts}]]*/ [];
+    const keywordLabels = /*[[${keywordLabels}]]*/ [];
+    const keywordCounts = /*[[${keywordCounts}]]*/ [];
+
+    new Chart(document.getElementById('hourlyChart'), {
+        type: 'line',
+        data: {
+            labels: hourlyLabels,
+            datasets: [{
+                label: '신규 기사',
+                data: hourlyCounts,
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.08)',
+                pointRadius: 3,
+                lineTension: 0.2
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            legend: { display: false },
+            scales: { yAxes: [{ ticks: { beginAtZero: true, precision: 0 } }] }
+        }
+    });
+
+    new Chart(document.getElementById('keywordChart'), {
+        type: 'horizontalBar',
+        data: {
+            labels: keywordLabels,
+            datasets: [{ label: '기사 수', data: keywordCounts, backgroundColor: '#36b9cc' }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            legend: { display: false },
+            scales: { xAxes: [{ ticks: { beginAtZero: true, precision: 0 } }] }
+        }
+    });
+</script>
+</body>
+</html>
