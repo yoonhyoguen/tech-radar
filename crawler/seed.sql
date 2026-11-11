@@ -13,7 +13,7 @@ VALUES
         'RSS',
         'https://www.soumu.go.jp/news.rdf',
         NULL,
-        FALSE,
+        TRUE,
         60
     ),
     (
@@ -21,7 +21,11 @@ VALUES
         'HTML',
         'https://www.ppc.go.jp/news/press/2026',
         'ul.news-list .news-text a',
-        FALSE,
+        TRUE,
         60
     )
-    ON CONFLICT (url) DO NOTHING;
+ON CONFLICT (url) DO NOTHING;
+
+INSERT INTO tracked_keyword (word)
+VALUES ('AI'), ('デジタル'), ('個人情報')
+ON CONFLICT (word) DO NOTHING;
