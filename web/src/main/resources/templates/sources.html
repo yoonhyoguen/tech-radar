@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('소스', false)}"></head>
+<body id="page-top">
+<div id="wrapper">
+    <ul th:replace="~{fragments/layout :: sidebar('sources')}"></ul>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <nav th:replace="~{fragments/layout :: topbar('소스 관리')}"></nav>
+
+            <div class="container-fluid">
+                <div th:replace="~{fragments/layout :: flash}"></div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>이름</th><th>종류</th><th>주소</th><th>마지막 수집</th>
+                                    <th>사용</th><th>주기(분)</th><th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="s : ${sources}">
+                                    <td th:text="${s.name}"></td>
+                                    <td><span class="badge badge-secondary" th:text="${s.type}"></span></td>
+                                    <td class="small text-break-all">
+                                        <a th:href="${s.url}" target="_blank" rel="noopener noreferrer" th:text="${s.url}"></a>
+                                        <div th:if="${s.listSelector}" class="text-gray-500">
+                                            선택자 <code th:text="${s.listSelector}"></code>
+                                        </div>
+                                    </td>
+                                    <td class="small" th:text="${@fmt.ago(s.lastCrawledAt)}"></td>
+                                    <td>
+                                        <input type="checkbox" name="enabled" value="true"
+                                               th:form="|source-${s.id}|" th:checked="${s.enabled}">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="intervalMin" min="10" required class="form-control form-control-sm"
+                                               style="width: 90px;" th:form="|source-${s.id}|" th:value="${s.intervalMin}">
+                                    </td>
+                                    <td>
+                                        <form th:id="|source-${s.id}|" th:action="@{/sources/{id}(id=${s.id})}" method="post">
+                                            <button type="submit" class="btn btn-sm btn-primary">저장</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="small text-gray-500 mb-0">
+                            사용을 끄면 수집기가 다음 확인(1분 이내)부터 그 소스를 수집하지 않습니다.
+                            주기는 사이트 부담을 줄이기 위해 10분 이상만 허용합니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

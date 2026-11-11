@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('실행 이력', false)}"></head>
+<body id="page-top">
+<div id="wrapper">
+    <ul th:replace="~{fragments/layout :: sidebar('runs')}"></ul>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <nav th:replace="~{fragments/layout :: topbar('실행 이력')}"></nav>
+
+            <div class="container-fluid">
+                <p class="mb-3">
+                    총 <strong th:text="${total}">0</strong>회 실행 ·
+                    성공률 <strong th:text="|${successRate}%|">0%</strong> ·
+                    실패 <strong class="text-danger" th:text="${failed}">0</strong>회
+                </p>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th>시작</th><th>소스</th><th>상태</th>
+                                    <th class="text-right">수집</th><th class="text-right">신규</th><th class="text-right">갱신</th>
+                                    <th class="text-right">소요</th><th>에러 메시지</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="run : ${runs.content}" th:classappend="${run.status == 'FAILED'} ? 'table-danger'">
+                                    <td class="small" th:text="${@fmt.dt(run.startedAt)}"></td>
+                                    <td th:text="${run.source.name}"></td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${run.status == 'SUCCESS'} ? 'badge-success' : (${run.status == 'FAILED'} ? 'badge-danger' : 'badge-warning')"
+                                              th:text="${run.status}"></span>
+                                    </td>
+                                    <td class="text-right" th:text="${run.fetchedCount}"></td>
+                                    <td class="text-right" th:text="${run.insertedCount}"></td>
+                                    <td class="text-right" th:text="${run.updatedCount}"></td>
+                                    <td class="text-right small" th:text="${@fmt.elapsed(run.startedAt, run.finishedAt)}"></td>
+                                    <td class="small text-danger text-break-all" th:text="${run.errorMessage}"></td>
+                                </tr>
+                                <tr th:if="${runs.empty}">
+                                    <td colspan="8" class="text-center text-gray-500">실행 기록이 없습니다.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <nav th:if="${runs.totalPages > 1}">
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                <li class="page-item" th:classappend="${runs.first} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/runs(page=${runs.number - 1})}">이전</a>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link" th:text="|${runs.number + 1} / ${runs.totalPages}|"></span>
+                                </li>
+                                <li class="page-item" th:classappend="${runs.last} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/runs(page=${runs.number + 1})}">다음</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
