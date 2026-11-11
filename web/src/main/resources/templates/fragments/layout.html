@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title, refresh)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta th:if="${refresh}" http-equiv="refresh" content="60">
+    <title th:text="${title} + ' | YNC Tech Radar'">YNC Tech Radar</title>
+    <link th:href="@{/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet">
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+    <style>
+        body { font-family: "Noto Sans KR", "Noto Sans JP", "Malgun Gothic", "Meiryo", sans-serif; }
+        .table td { vertical-align: middle; }
+        .text-break-all { word-break: break-all; }
+    </style>
+</head>
+
+<body>
+
+<ul th:fragment="sidebar(active)" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" th:href="@{/}">
+        <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-satellite-dish"></i></div>
+        <div class="sidebar-brand-text mx-3">Tech Radar</div>
+    </a>
+    <hr class="sidebar-divider my-0">
+    <li class="nav-item" th:classappend="${active == 'dashboard'} ? 'active'">
+        <a class="nav-link" th:href="@{/}"><i class="fas fa-fw fa-tachometer-alt"></i><span>대시보드</span></a>
+    </li>
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">데이터</div>
+    <li class="nav-item" th:classappend="${active == 'articles'} ? 'active'">
+        <a class="nav-link" th:href="@{/articles}"><i class="fas fa-fw fa-newspaper"></i><span>기사</span></a>
+    </li>
+    <li class="nav-item" th:classappend="${active == 'keywords'} ? 'active'">
+        <a class="nav-link" th:href="@{/keywords}"><i class="fas fa-fw fa-tags"></i><span>키워드</span></a>
+    </li>
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">수집기</div>
+    <li class="nav-item" th:classappend="${active == 'runs'} ? 'active'">
+        <a class="nav-link" th:href="@{/runs}"><i class="fas fa-fw fa-history"></i><span>실행 이력</span></a>
+    </li>
+    <li class="nav-item" th:classappend="${active == 'sources'} ? 'active'">
+        <a class="nav-link" th:href="@{/sources}"><i class="fas fa-fw fa-rss"></i><span>소스</span></a>
+    </li>
+    <hr class="sidebar-divider d-none d-md-block">
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+</ul>
+
+<nav th:fragment="topbar(title)" class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+        <i class="fa fa-bars"></i>
+    </button>
+    <h1 class="h5 mb-0 text-gray-800" th:text="${title}">제목</h1>
+    <span class="ml-auto small text-gray-500">YNC Tech Radar · 일본 공공기관 IT 소식 수집기</span>
+</nav>
+
+<div th:fragment="flash">
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+</div>
+
+<footer th:fragment="footer" class="sticky-footer bg-white">
+    <div class="container my-auto">
+        <div class="copyright text-center my-auto small">
+            출처: デジタル庁 · 総務省 · 個人情報保護委員会 웹사이트 (공공데이터 이용규약 PDL1.0).
+            제목은 원문 그대로이며, 요약은 원문 일부를 발췌한 것입니다.
+        </div>
+    </div>
+</footer>
+
+<th:block th:fragment="scripts">
+    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
+    <script th:src="@{/js/sb-admin-2.min.js}"></script>
+</th:block>
+
+</body>
+</html>
