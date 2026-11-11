@@ -1,3 +1,11 @@
 spring:
   application:
     name: web
+  datasource:
+    url: jdbc:postgresql://localhost:5432/radar
+    username: ${DB_USER:radar}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
