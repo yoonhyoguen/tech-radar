@@ -2,7 +2,7 @@
 
 ## 구성
 - crawler/ : Node.js, ESM("type":"module"), rss-parser, cheerio, node-cron, pg(Pool)
-- web/     : Spring Boot 3, JPA, Thymeleaf, SB Admin 2(Bootstrap 4.6), Chart.js 2.9
+- web/     : Spring Boot 4.1, Java 25, JPA, Thymeleaf, SB Admin 2(Bootstrap 4.6), Chart.js 2.9
 - DB       : PostgreSQL 16 (schema.sql 참고)
 
 ## 규칙
